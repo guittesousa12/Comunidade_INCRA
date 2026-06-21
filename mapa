@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <title>Mapa Comunitário</title>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet.heat@0.2.0/dist/leaflet.heat.css"/>
+
+  <style>
+    #map { height: 100vh; }
+
+    #filtros {
+      position: absolute;
+      bottom: 10px;
+      right: 10px;
+      background: white;
+      padding: 10px;
+      z-index: 1000;
+      border-radius: 8px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    }
+
+    #filtros button {
+      margin: 2px;
+      padding: 5px 10px;
+      cursor: pointer;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      background: #f0f0f0;
+    }
+
+    #filtros button:hover {
+      background: #e0e0e0;
+    }
+
+    #controles-buffer {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      background: white;
+      padding: 10px;
+      z-index: 1000;
+      border-radius: 8px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+      font-size: 12px;
+    }
+
+    #controles-buffer label {
+      margin-right: 10px;
+    }
+
+    #logo {
+      position: absolute;
+      bottom: 10px;
+      left: 10px;
+      z-index: 1000;
+    }
+
+    #logo img {
+      width: 15vw;
+      max-width: 180px;
+    }
+
+    .loading {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: rgba(0,0,0,0.85);
+      color: white;
+      padding: 20px;
+      border-radius: 8px;
+      z-index: 2000;
+      text-align: center;
+    }
+
+    .loading-logo {
+      width: 80px;
+      margin-bottom: 10px;
+    }
+
+    /* Estilo para os círculos de buffer */
+    .buffer-circle {
+      border-radius: 50%;
+      pointer-events: none;
+    }
+  </style>
+</head>
+
+<body>
+
+<div id="map"></div>
+
+<div id="logo">
+  <img src="assets/logo.png" alt="Logo">
+</div>
+
+<div id="filtros"></div>
+
+<div id="controles-buffer">
+  <label>
+    <input type="checkbox" id="toggleBuffer"> Mostrar Buffer
+  </label>
+  <label>
+    Raio: 
+    <select id="raioBuffer">
+      <option value="25">25m</option>
+      <option value="50" selected>50m</option>
+      <option value="100">100m</option>
+      <option value="200">200m</option>
+    </select>
+  </label>
+</div>
+
+<div id="loading" class="loading">
+  <img src="assets/logo.png" class="loading-logo">
+  <p>Carregando dados...</p>
+</div>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="https://unpkg.com/papaparse@5.4.1/papaparse.min.js"></script>
+
+<script>
+
+// ================= CONFIG =================
+const CONFIG = {
+  sheetURL: "https://docs.google.com/spreadsheets/d/e/2PACX-1vS0QkPHFozeRjH9QtQh_OY-s-U5xGoqNcpCavJvUY9VHRIn02MUCAqw9GnVfddTn7Vt0Xs1yaqSbf1d/pub?output=csv",
+  center: [-3.73, -38.52],
+  zoom: 10
+};
+
+// ================= MAPA COM GOOGLE SATÉLITE + TOPONÍMIA =================
+const map = L.map('map').setView(CONFIG.center, CONFIG.zoom);
+
+L.tileLayer('https://{s}.google.com/vt/lyrs=y,m&x={x}&y={y}&z={z}', {
+  subdomains: ['mt0', 'mt1', 'mt2', 'mt3'],
+  attribution: 'Map data &copy; Google',
+  maxZoom: 20,
+  minZoom: 3
+}).addTo(map);
+
+// ================= FUNÇÃO COORDENADAS =================
+function extrairCoordenadas(texto) {
+  if (!texto) return null;
+
+  const t = texto.toString().replace(/\s+/g, " ");
+
+  const regex = /(-?\d{1,3}(?:\.\d+)?)[,\s]+(-?\d{1,3}(?:\.\d+)?)/g;
+
+  let match;
+  while ((match = regex.exec(t)) !== null) {
+    let a = parseFloat(match[1]);
+    let b = parseFloat(match[2]);
+
+    if (a >= -90 && a <= 90 && b >= -180 && b <= 180) {
+      return { lat: a, lon: b };
+    }
+    if (b >= -90 && b <= 90 && a >= -180 && a <= 180) {
+      return { lat: b, lon: a };
+    }
+  }
+
+  let g = t.match(/@(-?\d+\.\d+),(-?\d+\.\d+)/);
+  if (g) return { lat: parseFloat(g[1]), lon: parseFloat(g[2]) };
+
+  return null;
+}
+
+// ================= FUNÇÃO PARA CRIAR BUFFER (CÍRCULO) =================
+function criarBuffer(lat, lon, raioMetros, cor = 'rgba(255, 255, 255, 0.5)') {
+  // Converter metros para graus (aproximado)
+  const raioGraus = raioMetros / 111319.9; // 1 grau ≈ 111.32 km
+  
+  return L.circle([lat, lon], {
+    radius: raioMetros,
+    color: cor,
+    fillColor: cor,
+    fillOpacity: 0.5,
+    weight: 0,
+    className: 'buffer-circle'
+  });
+}
+
+// ================= ESTADO =================
+let state = {
+  markers: [],
+  buffers: [],
+  tipoAtivo: null,
+  tipos: new Set(),
+  mostrarBuffer: true,
+  raioBuffer: 50
+};
+
+// ================= SÍMBOLOS COM CONTORNO =================
+const simbolos = ["●","■","▲","◆","★","✚","▼","♥","♦","♣"];
+const mapaSimbolos = {};
+let contador = 0;
+
+// Cores de contorno por tipo
+const coresContorno = [
+  '#FF0000', '#00FF00', '#0000FF', '#FFA500', '#800080',
+  '#FFC0CB', '#00FFFF', '#FF00FF', '#FFFF00', '#4B0082'
+];
+
+// ================= FILTROS =================
+function aplicarFiltro(tipo) {
+  state.tipoAtivo = tipo;
+
+  state.markers.forEach(m => {
+    if (tipo === null || m.tipo === tipo) {
+      m.layer.addTo(map);
+    } else {
+      map.removeLayer(m.layer);
+    }
+  });
+  
+  // Atualizar buffers conforme filtro
+  atualizarBuffers();
+}
+
+function criarFiltros() {
+  const div = document.getElementById("filtros");
+  div.innerHTML = "";
+
+  Array.from(state.tipos).sort().forEach(tipo => {
+    const btn = document.createElement("button");
+    btn.innerText = "Tipo " + tipo;
+    btn.onclick = () => aplicarFiltro(tipo);
+    div.appendChild(btn);
+  });
+
+  const reset = document.createElement("button");
+  reset.innerText = "Todos";
+  reset.onclick = () => aplicarFiltro(null);
+  div.appendChild(reset);
+}
+
+// ================= GERENCIAR BUFFERS =================
+function atualizarBuffers() {
+  // Remover buffers existentes
+  state.buffers.forEach(buffer => {
+    map.removeLayer(buffer);
+  });
+  state.buffers = [];
+  
+  // Se não deve mostrar buffer, retorna
+  if (!state.mostrarBuffer) return;
+  
+  // Adicionar buffers apenas dos marcadores visíveis no filtro
+  state.markers.forEach(marker => {
+    if (state.tipoAtivo === null || marker.tipo === state.tipoAtivo) {
+      const buffer = criarBuffer(
+        marker.layer.getLatLng().lat, 
+        marker.layer.getLatLng().lng, 
+        state.raioBuffer
+      );
+      buffer.addTo(map);
+      state.buffers.push(buffer);
+    }
+  });
+}
+
+// ================= CARREGAMENTO =================
+function carregarDados() {
+  const loading = document.getElementById("loading");
+  loading.style.display = "block";
+
+  // Limpar tudo
+  state.markers.forEach(m => map.removeLayer(m.layer));
+  state.buffers.forEach(b => map.removeLayer(b));
+  state.markers = [];
+  state.buffers = [];
+  state.tipos.clear();
+
+  Papa.parse(CONFIG.sheetURL, {
+    download: true,
+    header: true,
+    worker: true,
+    skipEmptyLines: true,
+
+    complete: function(res) {
+
+      res.data.forEach(row => {
+
+        let lat = parseFloat(row.lat);
+        let lon = parseFloat(row.lon ?? row.log ?? row.lng);
+        let tipo = parseInt(row.tipo ?? row.Tipo);
+
+        // fallback coordenadas
+        if ((lat === null || isNaN(lat)) || (lon === null || isNaN(lon))) {
+          let c = extrairCoordenadas(row.coordenadas || row.coordenada);
+          if (c) {
+            lat = c.lat;
+            lon = c.lon;
+          }
+        }
+
+        // validação correta
+        if (lat === null || lon === null || isNaN(lat) || isNaN(lon) || isNaN(tipo)) return;
+
+        state.tipos.add(tipo);
+
+        // símbolo dinâmico com contorno
+        if (!(tipo in mapaSimbolos)) {
+          mapaSimbolos[tipo] = {
+            simbolo: simbolos[contador % simbolos.length],
+            cor: coresContorno[contador % coresContorno.length]
+          };
+          contador++;
+        }
+
+        const { simbolo, cor } = mapaSimbolos[tipo];
+
+        // Criar marcador com contorno (borda branca + cor)
+        const marker = L.marker([lat, lon], {
+          icon: L.divIcon({
+            className: '',
+            html: `<div style="
+              font-size:24px;
+              text-align:center;
+              font-weight:bold;
+              text-shadow: 
+                -1px -1px 0 white,
+                1px -1px 0 white,
+                -1px 1px 0 white,
+                1px 1px 0 white,
+                0 0 3px ${cor};
+              color: ${cor};
+            ">${simbolo}</div>`,
+            iconSize: [30, 30],
+            popupAnchor: [0, -15]
+          })
+        }).bindPopup(`
+          <div style="min-width:150px;">
+            <b>Tipo:</b> ${tipo}<br>
+            <b>Localização:</b><br>
+            ${lat.toFixed(5)}, ${lon.toFixed(5)}
+            ${row.nome ? `<br><b>Nome:</b> ${row.nome}` : ''}
+            ${row.descricao ? `<br><b>Descrição:</b> ${row.descricao.substring(0,100)}` : ''}
+          </div>
+        `);
+
+        marker.addTo(map);
+
+        state.markers.push({
+          layer: marker,
+          tipo: tipo,
+          lat: lat,
+          lon: lon
+        });
+      });
+
+      criarFiltros();
+      
+      // Criar buffers iniciais
+      atualizarBuffers();
+
+      if (state.markers.length > 0) {
+        const bounds = L.latLngBounds(state.markers.map(m => [m.lat, m.lon]));
+        map.fitBounds(bounds);
+      }
+
+      loading.style.display = "none";
+    }
+  });
+}
+
+// ================= CONTROLES DE BUFFER =================
+function setupBufferControls() {
+  const toggle = document.getElementById('toggleBuffer');
+  const raioSelect = document.getElementById('raioBuffer');
+  
+  toggle.addEventListener('change', (e) => {
+    state.mostrarBuffer = e.target.checked;
+    atualizarBuffers();
+  });
+  
+  raioSelect.addEventListener('change', (e) => {
+    state.raioBuffer = parseInt(e.target.value);
+    atualizarBuffers();
+  });
+}
+
+// ================= INICIALIZAÇÃO =================
+setupBufferControls();
+carregarDados();
+
+// Atualização automática a cada 5 minutos
+setInterval(carregarDados, 300000);
+
+</script>
+
+</body>
+</html>
+
