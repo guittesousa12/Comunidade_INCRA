@@ -11,28 +11,22 @@
   <style>
     #map { height: 100vh; }
 
-    #filtroTipo{
-      width:220px;
-      padding:10px;
-      border:2px solid #00bf63;
-      border-radius:10px;
-      background:white;
-      font-size:14px;
-      font-weight:bold;
-      cursor:pointer;
+    #filtros {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      z-index: 1000;
     }
 
-    #filtros button {
-      margin: 2px;
-      padding: 5px 10px;
+    #filtroTipo {
+      width: 220px;
+      padding: 10px;
+      border: 2px solid #00bf63;
+      border-radius: 10px;
+      background: white;
+      font-size: 14px;
+      font-weight: bold;
       cursor: pointer;
-      border: 1px solid #ccc;
-      border-radius: 4px;
-      background: #f0f0f0;
-    }
-
-    #filtros button:hover {
-      background: #e0e0e0;
     }
 
     #controles-buffer {
@@ -81,10 +75,13 @@
       margin-bottom: 10px;
     }
 
-    /* Estilo para os círculos de buffer */
     .buffer-circle {
       border-radius: 50%;
       pointer-events: none;
+    }
+
+    .leaflet-popup-content {
+      font-size: 14px;
     }
   </style>
 </head>
@@ -101,7 +98,7 @@
 
 <div id="controles-buffer">
   <label>
-    <input type="checkbox" id="toggleBuffer"> Mostrar Buffer
+    <input type="checkbox" id="toggleBuffer" checked> Mostrar Buffer
   </label>
   <label>
     Raio: 
@@ -131,7 +128,7 @@ const CONFIG = {
   zoom: 10
 };
 
-// ================= MAPA COM GOOGLE SATÉLITE + TOPONÍMIA =================
+// ================= MAPA COM GOOGLE SATÉLITE =================
 const map = L.map('map').setView(CONFIG.center, CONFIG.zoom);
 
 L.tileLayer('https://{s}.google.com/vt/lyrs=y,m&x={x}&y={y}&z={z}', {
@@ -141,24 +138,22 @@ L.tileLayer('https://{s}.google.com/vt/lyrs=y,m&x={x}&y={y}&z={z}', {
   minZoom: 3
 }).addTo(map);
 
- fetch('assets/PA_Redonda.geojson')
+// Carregar GeoJSON
+fetch('assets/PA_Redonda.geojson')
   .then(response => response.json())
   .then(data => {
-
-      const camadaGeojson = L.geoJSON(data, {
-          style: {
-              color: '#00bf63',
-              weight: 3,
-              fillColor: '#00bf63',
-              fillOpacity: 0.2
-          }
-      }).addTo(map);
-
-      map.fitBounds(camadaGeojson.getBounds());
-
+    const camadaGeojson = L.geoJSON(data, {
+      style: {
+        color: '#00bf63',
+        weight: 3,
+        fillColor: '#00bf63',
+        fillOpacity: 0.2
+      }
+    }).addTo(map);
+    map.fitBounds(camadaGeojson.getBounds());
   })
   .catch(error => {
-      console.error('Erro GeoJSON:', error);
+    console.error('Erro GeoJSON:', error);
   });
   
 // ================= FUNÇÃO COORDENADAS =================
@@ -188,11 +183,8 @@ function extrairCoordenadas(texto) {
   return null;
 }
 
-// ================= FUNÇÃO PARA CRIAR BUFFER (CÍRCULO) =================
-function criarBuffer(lat, lon, raioMetros, cor = 'rgba(255, 255, 255, 0.5)') {
-  // Converter metros para graus (aproximado)
-  const raioGraus = raioMetros / 111319.9; // 1 grau ≈ 111.32 km
-  
+// ================= FUNÇÃO PARA CRIAR BUFFER =================
+function criarBuffer(lat, lon, raioMetros, cor = 'rgba(0, 191, 99, 0.3)') {
   return L.circle([lat, lon], {
     radius: raioMetros,
     color: cor,
@@ -213,9 +205,7 @@ let state = {
   raioBuffer: 50
 };
 
-// ================= SÍMBOLOS COM CONTORNO =================
 // ================= ÍCONES DOS TIPOS =================
-
 const simbolos = {
   1: "🌱",
   2: "🌾",
@@ -228,71 +218,73 @@ const simbolos = {
   9: "⚠️"
 };
 
-// Cores de contorno por tipo
-const coresContorno = [
-  '#FF0000', '#00FF00', '#0000FF', '#FFA500', '#800080',
-  '#FFC0CB', '#00FFFF', '#FF00FF', '#FFFF00', '#4B0082'
-];
+// Cores por tipo
+const cores = {
+  1: '#4CAF50',  // Verde - Feijão
+  2: '#FFC107',  // Amarelo - Arroz
+  3: '#8BC34A',  // Verde claro - Cajueiro
+  4: '#2196F3',  // Azul - Cisterna
+  5: '#FF9800',  // Laranja - Milho
+  6: '#795548',  // Marrom - Poço
+  7: '#4CAF50',  // Verde - Hortaliça
+  8: '#9E9E9E',  // Cinza - Em repouso
+  9: '#F44336'   // Vermelho - Degradado
+};
+
+// Nomes dos tipos
+const nomesTipos = {
+  1: 'Feijão',
+  2: 'Arroz',
+  3: 'Cajueiro',
+  4: 'Cisterna',
+  5: 'Milho',
+  6: 'Poço',
+  7: 'Hortaliça',
+  8: 'Em repouso',
+  9: 'Degradado'
+};
 
 // ================= FILTROS =================
-
 function aplicarFiltro(tipo) {
-state.tipoAtivo = tipo;
+  state.tipoAtivo = tipo;
 
-state.markers.forEach(m => {
-if (tipo === null || m.tipo === tipo) {
-m.layer.addTo(map);
-} else {
-map.removeLayer(m.layer);
-}
-});
+  state.markers.forEach(m => {
+    if (tipo === null || m.tipo === tipo) {
+      m.layer.addTo(map);
+    } else {
+      map.removeLayer(m.layer);
+    }
+  });
 
-atualizarBuffers();
+  atualizarBuffers();
 }
 
 function criarFiltros() {
+  const filtrosDiv = document.getElementById("filtros");
+  
+  let html = '<select id="filtroTipo">';
+  html += '<option value="todos">🌎 Todos os pontos</option>';
+  
+  // Ordenar tipos
+  const tiposOrdenados = Array.from(state.tipos).sort((a, b) => a - b);
+  
+  tiposOrdenados.forEach(tipo => {
+    const nome = nomesTipos[tipo] || `Tipo ${tipo}`;
+    const simbolo = simbolos[tipo] || '📍';
+    html += `<option value="${tipo}">${simbolo} ${nome}</option>`;
+  });
+  
+  html += '</select>';
+  filtrosDiv.innerHTML = html;
 
-document.getElementById("filtros").innerHTML = `
-
-```
-<select id="filtroTipo">
-
-  <option value="todos">🌎 Todos os pontos</option>
-
-  <option value="1">🌱 Feijão</option>
-  <option value="2">🌾 Arroz</option>
-  <option value="3">🌳 Cajueiro</option>
-  <option value="4">💧 Cisterna</option>
-  <option value="5">🌽 Milho</option>
-  <option value="6">🕳️ Poço</option>
-  <option value="7">🥬 Hortaliça</option>
-  <option value="8">🌿 Em repouso</option>
-  <option value="9">⚠️ Degradado</option>
-
-</select>
-```
-
-`;
-
-document.getElementById("filtroTipo")
-.addEventListener("change", function(){
-
-```
-  if(this.value === "todos"){
-
-    aplicarFiltro(null);
-
-  }else{
-
-    aplicarFiltro(parseInt(this.value));
-
-  }
-
-});
-```
-
+  document.getElementById("filtroTipo").addEventListener("change", function() {
+    if (this.value === "todos") {
+      aplicarFiltro(null);
+    } else {
+      aplicarFiltro(parseInt(this.value));
+    }
+  });
 }
-
 
 // ================= GERENCIAR BUFFERS =================
 function atualizarBuffers() {
@@ -309,9 +301,10 @@ function atualizarBuffers() {
   state.markers.forEach(marker => {
     if (state.tipoAtivo === null || marker.tipo === state.tipoAtivo) {
       const buffer = criarBuffer(
-        marker.layer.getLatLng().lat, 
-        marker.layer.getLatLng().lng, 
-        state.raioBuffer
+        marker.lat,
+        marker.lon,
+        state.raioBuffer,
+        cores[marker.tipo] || 'rgba(0, 191, 99, 0.3)'
       );
       buffer.addTo(map);
       state.buffers.push(buffer);
@@ -338,46 +331,50 @@ function carregarDados() {
     skipEmptyLines: true,
 
     complete: function(res) {
+      console.log('Dados carregados:', res.data.length, 'linhas');
 
-      res.data.forEach(row => {
-
+      res.data.forEach((row, index) => {
+        // Tentar extrair coordenadas de diferentes formatos
         let lat = parseFloat(row.lat);
-        let lon = parseFloat(row.lon ?? row.log ?? row.lng);
-        let tipo = parseInt(row.tipo ?? row.Tipo);
+        let lon = parseFloat(row.lon || row.log || row.lng);
+        let tipo = parseInt(row.tipo || row.Tipo);
 
-        // fallback coordenadas
-        if ((lat === null || isNaN(lat)) || (lon === null || isNaN(lon))) {
-          let c = extrairCoordenadas(row.coordenadas || row.coordenada);
-          if (c) {
-            lat = c.lat;
-            lon = c.lon;
+        // Se coordenadas não forem válidas, tentar extrair
+        if (isNaN(lat) || isNaN(lon)) {
+          const coordText = row.coordenadas || row.coordenada || row.localizacao || '';
+          const coords = extrairCoordenadas(coordText);
+          if (coords) {
+            lat = coords.lat;
+            lon = coords.lon;
           }
         }
 
-        // validação correta
-        if (lat === null || lon === null || isNaN(lat) || isNaN(lon) || isNaN(tipo)) return;
+        // Validar dados
+        if (isNaN(lat) || isNaN(lon) || isNaN(tipo)) {
+          console.warn('Linha ignorada (dados inválidos):', row);
+          return;
+        }
+
+        // Validar limites
+        if (lat < -90 || lat > 90 || lon < -180 || lon > 180) {
+          console.warn('Coordenadas inválidas:', lat, lon);
+          return;
+        }
 
         state.tipos.add(tipo);
 
-        // símbolo dinâmico com contorno
-        if (!(tipo in mapaSimbolos)) {
-          mapaSimbolos[tipo] = {
-            simbolo: simbolos[contador % simbolos.length],
-            cor: coresContorno[contador % coresContorno.length]
-          };
-          contador++;
-        }
+        // Obter símbolo e cor
+        const simbolo = simbolos[tipo] || '📍';
+        const cor = cores[tipo] || '#000000';
 
-        const { simbolo, cor } = mapaSimbolos[tipo];
-
-        // Criar marcador com contorno (borda branca + cor)
+        // Criar marcador
         const marker = L.marker([lat, lon], {
           icon: L.divIcon({
-            className: '',
+            className: 'custom-marker',
             html: `<div style="
-              font-size:24px;
-              text-align:center;
-              font-weight:bold;
+              font-size: 24px;
+              text-align: center;
+              line-height: 1;
               text-shadow: 
                 -1px -1px 0 white,
                 1px -1px 0 white,
@@ -387,15 +384,18 @@ function carregarDados() {
               color: ${cor};
             ">${simbolo}</div>`,
             iconSize: [30, 30],
+            iconAnchor: [15, 15],
             popupAnchor: [0, -15]
           })
         }).bindPopup(`
-          <div style="min-width:150px;">
-            <b>Tipo:</b> ${tipo}<br>
+          <div style="min-width:150px; font-family: Arial, sans-serif;">
+            <div style="font-size: 28px; text-align: center; margin-bottom: 5px;">${simbolo}</div>
+            <b>Tipo:</b> ${nomesTipos[tipo] || tipo}<br>
             <b>Localização:</b><br>
             ${lat.toFixed(5)}, ${lon.toFixed(5)}
             ${row.nome ? `<br><b>Nome:</b> ${row.nome}` : ''}
             ${row.descricao ? `<br><b>Descrição:</b> ${row.descricao.substring(0,100)}` : ''}
+            ${row.observacao ? `<br><b>Obs:</b> ${row.observacao.substring(0,100)}` : ''}
           </div>
         `);
 
@@ -405,21 +405,35 @@ function carregarDados() {
           layer: marker,
           tipo: tipo,
           lat: lat,
-          lon: lon
+          lon: lon,
+          dados: row
         });
       });
 
+      console.log('Marcadores criados:', state.markers.length);
+
+      // Criar filtros
       criarFiltros();
       
       // Criar buffers iniciais
       atualizarBuffers();
 
+      // Ajustar zoom para mostrar todos os marcadores
       if (state.markers.length > 0) {
         const bounds = L.latLngBounds(state.markers.map(m => [m.lat, m.lon]));
-        map.fitBounds(bounds);
+        map.fitBounds(bounds, { padding: [50, 50] });
       }
 
       loading.style.display = "none";
+    },
+    error: function(error) {
+      console.error('Erro ao carregar dados:', error);
+      loading.innerHTML = `
+        <img src="assets/logo.png" class="loading-logo">
+        <p>Erro ao carregar dados.</p>
+        <p style="font-size: 12px; color: #aaa;">${error.message}</p>
+        <button onclick="carregarDados()" style="margin-top: 10px; padding: 5px 15px; cursor: pointer;">Tentar novamente</button>
+      `;
     }
   });
 }
@@ -451,4 +465,3 @@ setInterval(carregarDados, 300000);
 
 </body>
 </html>
-
