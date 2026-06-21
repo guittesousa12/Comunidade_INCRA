@@ -141,18 +141,24 @@ L.tileLayer('https://{s}.google.com/vt/lyrs=y,m&x={x}&y={y}&z={z}', {
   minZoom: 3
 }).addTo(map);
 
-  fetch('assets/PA_Redonda.geojson')
+ fetch('assets/PA_Redonda.geojson')
   .then(response => response.json())
   .then(data => {
 
-      L.geoJSON(data, {
+      const camadaGeojson = L.geoJSON(data, {
           style: {
               color: '#00bf63',
               weight: 3,
+              fillColor: '#00bf63',
               fillOpacity: 0.2
           }
       }).addTo(map);
 
+      map.fitBounds(camadaGeojson.getBounds());
+
+  })
+  .catch(error => {
+      console.error('Erro GeoJSON:', error);
   });
   
 // ================= FUNÇÃO COORDENADAS =================
