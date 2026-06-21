@@ -141,7 +141,7 @@ L.tileLayer('https://{s}.google.com/vt/lyrs=y,m&x={x}&y={y}&z={z}', {
   minZoom: 3
 }).addTo(map);
 
-  fetch('dados/PA_Redonda.geojson')
+  fetch('assets/PA_Redonda.geojson')
   .then(response => response.json())
   .then(data => {
 
