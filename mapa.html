@@ -235,26 +235,22 @@ const coresContorno = [
 ];
 
 // ================= FILTROS =================
-function aplicarFiltro(tipo) {
-  state.tipoAtivo = tipo;
 
-  state.markers.forEach(m => {
-    if (tipo === null || m.tipo === tipo) {
-      m.layer.addTo(map);
-    } else {
-      map.removeLayer(m.layer);
-    }
-  });
-  
-  // Atualizar buffers conforme filtro
-  atualizarBuffers();
+function aplicarFiltro(tipo) {
+state.tipoAtivo = tipo;
+
+state.markers.forEach(m => {
+if (tipo === null || m.tipo === tipo) {
+m.layer.addTo(map);
+} else {
+map.removeLayer(m.layer);
+}
+});
+
+atualizarBuffers();
 }
 
-  const reset = document.createElement("button");
-  reset.innerText = "Todos";
-  reset.onclick = () => aplicarFiltro(null);
-  div.appendChild(reset);
-}function criarFiltros() {
+function criarFiltros() {
 
 document.getElementById("filtros").innerHTML = `
 
