@@ -14,21 +14,12 @@
     #filtroTipo{
       width:220px;
       padding:10px;
-      
-      ```
       border:2px solid #00bf63;
       border-radius:10px;
-      
       background:white;
-      
       font-size:14px;
       font-weight:bold;
-      
       cursor:pointer;
-      
-      box-shadow:0 2px 5px rgba(0,0,0,0.2);
-    ```
-
     }
 
     #filtros button {
@@ -258,17 +249,6 @@ function aplicarFiltro(tipo) {
   // Atualizar buffers conforme filtro
   atualizarBuffers();
 }
-
-function criarFiltros() {
-  const div = document.getElementById("filtros");
-  div.innerHTML = "";
-
-  Array.from(state.tipos).sort().forEach(tipo => {
-    const btn = document.createElement("button");
-    btn.innerText = "Tipo " + tipo;
-    btn.onclick = () => aplicarFiltro(tipo);
-    div.appendChild(btn);
-  });
 
   const reset = document.createElement("button");
   reset.innerText = "Todos";
