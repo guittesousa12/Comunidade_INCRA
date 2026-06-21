@@ -11,15 +11,24 @@
   <style>
     #map { height: 100vh; }
 
-    #filtros {
-      position: absolute;
-      bottom: 10px;
-      right: 10px;
-      background: white;
-      padding: 10px;
-      z-index: 1000;
-      border-radius: 8px;
-      box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    #filtroTipo{
+      width:220px;
+      padding:10px;
+      
+      ```
+      border:2px solid #00bf63;
+      border-radius:10px;
+      
+      background:white;
+      
+      font-size:14px;
+      font-weight:bold;
+      
+      cursor:pointer;
+      
+      box-shadow:0 2px 5px rgba(0,0,0,0.2);
+    ```
+
     }
 
     #filtros button {
@@ -214,9 +223,19 @@ let state = {
 };
 
 // ================= SÍMBOLOS COM CONTORNO =================
-const simbolos = ["●","■","▲","◆","★","✚","▼","♥","♦","♣"];
-const mapaSimbolos = {};
-let contador = 0;
+// ================= ÍCONES DOS TIPOS =================
+
+const simbolos = {
+  1: "🌱",
+  2: "🌾",
+  3: "🌳",
+  4: "💧",
+  5: "🌽",
+  6: "🕳️",
+  7: "🥬",
+  8: "🌿",
+  9: "⚠️"
+};
 
 // Cores de contorno por tipo
 const coresContorno = [
@@ -255,7 +274,49 @@ function criarFiltros() {
   reset.innerText = "Todos";
   reset.onclick = () => aplicarFiltro(null);
   div.appendChild(reset);
+}function criarFiltros() {
+
+document.getElementById("filtros").innerHTML = `
+
+```
+<select id="filtroTipo">
+
+  <option value="todos">🌎 Todos os pontos</option>
+
+  <option value="1">🌱 Feijão</option>
+  <option value="2">🌾 Arroz</option>
+  <option value="3">🌳 Cajueiro</option>
+  <option value="4">💧 Cisterna</option>
+  <option value="5">🌽 Milho</option>
+  <option value="6">🕳️ Poço</option>
+  <option value="7">🥬 Hortaliça</option>
+  <option value="8">🌿 Em repouso</option>
+  <option value="9">⚠️ Degradado</option>
+
+</select>
+```
+
+`;
+
+document.getElementById("filtroTipo")
+.addEventListener("change", function(){
+
+```
+  if(this.value === "todos"){
+
+    aplicarFiltro(null);
+
+  }else{
+
+    aplicarFiltro(parseInt(this.value));
+
+  }
+
+});
+```
+
 }
+
 
 // ================= GERENCIAR BUFFERS =================
 function atualizarBuffers() {
