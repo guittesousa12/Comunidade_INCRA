@@ -6,7 +6,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
-  <link rel="stylesheet" href="https://unpkg.com/leaflet.heat@0.2.0/dist/leaflet.heat.css"/>
 
   <style>
     #map { height: 100vh; }
@@ -188,8 +187,8 @@ function criarBuffer(lat, lon, raioMetros, cor = 'rgba(0, 191, 99, 0.3)') {
     radius: raioMetros,
     color: cor,
     fillColor: cor,
-    fillOpacity: 0.5,
-    weight: 0,
+    fillOpacity: 0.3,
+    weight: 1,
     className: 'buffer-circle'
   });
 }
@@ -204,30 +203,17 @@ let state = {
   raioBuffer: 50
 };
 
-// ================= ÍCONES DOS TIPOS =================
-const simbolos = {
-  1: "🌱",
-  2: "🌾",
-  3: "🌳",
-  4: "💧",
-  5: "🌽",
-  6: "🕳️",
-  7: "🥬",
-  8: "🌿",
-  9: "⚠️"
-};
-
-// Cores por tipo
+// ================= CORES POR TIPO =================
 const cores = {
-  1: '#4CAF50',
-  2: '#FFC107',
-  3: '#8BC34A',
-  4: '#2196F3',
-  5: '#FF9800',
-  6: '#795548',
-  7: '#4CAF50',
-  8: '#9E9E9E',
-  9: '#F44336'
+  1: '#4CAF50',  // Verde - Feijão
+  2: '#FFC107',  // Amarelo - Arroz
+  3: '#8BC34A',  // Verde claro - Cajueiro
+  4: '#2196F3',  // Azul - Cisterna
+  5: '#FF9800',  // Laranja - Milho
+  6: '#795548',  // Marrom - Poço
+  7: '#4CAF50',  // Verde - Hortaliça
+  8: '#9E9E9E',  // Cinza - Em repouso
+  9: '#F44336'   // Vermelho - Degradado
 };
 
 // Nomes dos tipos
@@ -271,9 +257,9 @@ function criarFiltros() {
   const tiposOrdenados = Array.from(state.tipos).sort((a, b) => a - b);
   
   tiposOrdenados.forEach(tipo => {
-    const nome = nomesTipos[tipo] || `Tipo ${tipo}`;
-    const simbolo = simbolos[tipo] || '📍';
-    html += `<option value="${tipo}">${simbolo} ${nome}</option>`;
+    const nome = nomesTipos[tipo] || 'Tipo ' + tipo;
+    const cor = cores[tipo] || '#000000';
+    html += '<option value="' + tipo + '" style="color:' + cor + ';">● ' + nome + '</option>';
   });
   
   html += '</select>';
@@ -365,20 +351,23 @@ function carregarDados() {
 
         state.tipos.add(tipo);
 
-        const simbolo = simbolos[tipo] || '📍';
-        const cor = cores[tipo] || '#000000';
+        const cor = cores[tipo] || '#FF0000';
 
-        const marker = L.marker([lat, lon], {
-          icon: L.divIcon({
-            className: 'custom-marker',
-            html: '<div style="font-size:24px;text-align:center;line-height:1;text-shadow:-1px -1px 0 white,1px -1px 0 white,-1px 1px 0 white,1px 1px 0 white,0 0 3px ' + cor + ';color:' + cor + ';">' + simbolo + '</div>',
-            iconSize: [30, 30],
-            iconAnchor: [15, 15],
-            popupAnchor: [0, -15]
-          })
-        }).bindPopup(
+        // Criar marcador como círculo colorido
+        const marker = L.circleMarker([lat, lon], {
+          radius: 10,
+          fillColor: cor,
+          color: '#ffffff',
+          weight: 2,
+          opacity: 1,
+          fillOpacity: 0.8
+        });
+
+        marker.bindPopup(
           '<div style="min-width:150px;font-family:Arial,sans-serif;">' +
-          '<div style="font-size:28px;text-align:center;margin-bottom:5px;">' + simbolo + '</div>' +
+          '<div style="font-size:18px;text-align:center;margin-bottom:5px;">' +
+          '<span style="display:inline-block;width:20px;height:20px;border-radius:50%;background:' + cor + ';border:2px solid white;"></span>' +
+          '</div>' +
           '<b>Tipo:</b> ' + (nomesTipos[tipo] || tipo) + '<br>' +
           '<b>Localização:</b><br>' +
           lat.toFixed(5) + ', ' + lon.toFixed(5) +
