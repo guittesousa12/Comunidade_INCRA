@@ -1,0 +1,95 @@
+<div id="folhetins" class="secao">
+
+    <div class="topo">
+
+        <button class="botao-voltar"
+                onclick="voltarMenu()">
+
+            ← Voltar
+
+        </button>
+
+        <h2>Folhetins das Comunidades</h2>
+
+    </div>
+
+    <div class="conteudo-folhetins">
+
+        <div class="folhetim-card">
+
+            <div class="cabecalho-folhetim">
+                🌿 FOLHETIM COMUNITÁRIO
+            </div>
+
+            <div class="nome-comunidade">
+                PA REDONDA
+            </div>
+
+            <div class="resumo-geral">
+
+                <p>📍 Registros cadastrados: <span id="totalRegistros">0</span></p>
+
+                <p>🌱 Tipos identificados: <span id="totalTipos">0</span></p>
+
+                <p>🗓️ Atualizado automaticamente</p>
+
+            </div>
+
+            <hr>
+
+            <h3>PRODUÇÃO E USO DA TERRA</h3>
+
+            <ul class="lista-folhetim">
+
+                <li>🌱 Feijão <span id="qtdFeijao">0</span></li>
+
+                <li>🌾 Arroz <span id="qtdArroz">0</span></li>
+
+                <li>🌽 Milho <span id="qtdMilho">0</span></li>
+
+                <li>🌳 Cajueiro <span id="qtdCajueiro">0</span></li>
+
+                <li>🥬 Hortaliça <span id="qtdHortalica">0</span></li>
+
+            </ul>
+
+            <h3>RECURSOS HÍDRICOS</h3>
+
+            <ul class="lista-folhetim">
+
+                <li>💧 Cisterna <span id="qtdCisterna">0</span></li>
+
+                <li>🕳️ Poço <span id="qtdPoco">0</span></li>
+
+            </ul>
+
+            <h3>SITUAÇÃO AMBIENTAL</h3>
+
+            <ul class="lista-folhetim">
+
+                <li>🌿 Em repouso <span id="qtdRepouso">0</span></li>
+
+                <li>⚠️ Degradado <span id="qtdDegradado">0</span></li>
+
+            </ul>
+
+            <div class="destaque-folhetim">
+
+                <strong id="fraseResumo">
+                    Carregando informações da comunidade...
+                </strong>
+
+            </div>
+
+            <button class="btn-mapa"
+                    onclick="mostrarSecao('dados')">
+
+                🗺️ Ver no mapa
+
+            </button>
+
+        </div>
+
+    </div>
+
+</div>
