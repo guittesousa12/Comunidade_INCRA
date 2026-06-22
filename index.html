@@ -1,11 +1,15 @@
 <!DOCTYPE html>
 
 <html lang="pt-BR">
-<head> <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&display=swap" rel="stylesheet">
+
+<head>
+
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <title>Portal Comunitário</title>
+
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&display=swap" rel="stylesheet">
 
 <style>
 
@@ -13,97 +17,80 @@
     margin:0;
     padding:0;
     box-sizing:border-box;
-    font-family:Arial,sans-serif;
 }
 
 body{
-    overflow:hidden;
-}
 
-#menuPrincipal{
     width:100%;
     height:100vh;
 
     background:url("assets/fundo.jpg") center center/cover no-repeat;
 
     display:flex;
-    flex-direction:column;
     justify-content:center;
     align-items:center;
 
-    gap:30px;
+    font-family:Arial,sans-serif;
 }
 
-#menuPrincipal h1{
+.container{
+
+    text-align:center;
+}
+
+h1{
+
     color:#00bf63;
-    font-size:3.5rem;
+
     font-family:'DM Serif Display', serif;
-    font-weight:normal;
+
+    font-size:4rem;
+
+    margin-bottom:40px;
+
+    text-shadow:2px 2px 10px rgba(255,255,255,.8);
 }
 
 .menu-opcoes{
+
     display:flex;
+
     gap:25px;
-    flex-wrap:wrap;
+
     justify-content:center;
+
+    flex-wrap:wrap;
 }
 
 .card-menu{
+
     width:280px;
     height:180px;
 
-    border:3px solid #00bf63;
+    border:none;
+
     border-radius:20px;
 
     background:#00bf63;
 
     color:white;
 
-    font-size:1.3rem;
     font-family:'DM Serif Display', serif;
+
+    font-size:1.4rem;
 
     cursor:pointer;
 
-    transition:all .3s ease;
+    transition:.3s;
+
+    box-shadow:0 6px 15px rgba(0,0,0,.25);
 }
 
 .card-menu:hover{
+
     transform:translateY(-8px);
-}
 
-.secao{
-    display:none;
-    width:100%;
-    height:100vh;
-}
-
-.topo{
-    height:60px;
-    background:#2c3e50;
-    color:white;
-
-    display:flex;
-    align-items:center;
-    gap:15px;
-
-    padding:0 15px;
-}
-
-.botao-voltar{
-    padding:8px 15px;
-    border:none;
-    border-radius:6px;
-    cursor:pointer;
-}
-
-.conteudo{
-    height:calc(100vh - 60px);
-}
-
-iframe{
-    width:100%;
-    height:100%;
-    border:none;
+    box-shadow:0 12px 25px rgba(0,0,0,.35);
 }
 
 </style>
@@ -112,7 +99,7 @@ iframe{
 
 <body>
 
-<div id="menuPrincipal">
+<div class="container">
 
 ```
 <h1>Menu Principal</h1>
@@ -120,7 +107,7 @@ iframe{
 <div class="menu-opcoes">
 
     <button class="card-menu"
-            onclick="mostrarSecao('folhetins')">
+            onclick="window.location.href='folhetim.html'">
 
         📖<br><br>
         Folhetins das Comunidades
@@ -128,7 +115,7 @@ iframe{
     </button>
 
     <button class="card-menu"
-            onclick="mostrarSecao('dados')">
+            onclick="window.location.href='mapa.html'">
 
         🗺️<br><br>
         Adicione Dados
@@ -140,89 +127,6 @@ iframe{
 
 </div>
 
-<div id="folhetins" class="secao">
-
-```
-<div class="topo">
-
-    <button class="botao-voltar"
-            onclick="voltarMenu()">
-
-        ← Voltar
-
-    </button>
-
-    <h2>Folhetins das Comunidades</h2>
-
-</div>
-
-<div class="conteudo"
-     style="padding:30px;">
-
-    <h3>Em construção</h3>
-
-    <p>
-        Os folhetins serão adicionados futuramente.
-    </p>
-
-</div>
-```
-
-</div>
-
-<div id="dados" class="secao">
-
-```
-<div class="topo">
-
-    <button class="botao-voltar"
-            onclick="voltarMenu()">
-
-        ← Voltar
-
-    </button>
-
-    <h2>Adicione Dados</h2>
-
-</div>
-
-<div class="conteudo">
-
-    <iframe src="mapa.html"></iframe>
-
-</div>
-```
-
-</div>
-
-<script>
-
-function mostrarSecao(secao){
-
-    document.getElementById("menuPrincipal")
-            .style.display="none";
-
-    document
-      .querySelectorAll(".secao")
-      .forEach(s=>s.style.display="none");
-
-    document
-      .getElementById(secao)
-      .style.display="block";
-}
-
-function voltarMenu(){
-
-    document
-      .querySelectorAll(".secao")
-      .forEach(s=>s.style.display="none");
-
-    document
-      .getElementById("menuPrincipal")
-      .style.display="flex";
-}
-
-</script>
-
 </body>
+
 </html>
