@@ -1,95 +1,441 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Folhetim Comunitário</title>
+  
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Arial', sans-serif;
+      background: #f5f5f5;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      padding: 20px;
+    }
+
+    .secao {
+      width: 100%;
+      max-width: 500px;
+    }
+
+    .topo {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 16px;
+      background: white;
+      padding: 12px 16px;
+      border-radius: 12px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+
+    .botao-voltar {
+      background: #00bf63;
+      color: white;
+      border: none;
+      padding: 8px 16px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: bold;
+      font-size: 14px;
+      transition: all 0.3s ease;
+      white-space: nowrap;
+    }
+
+    .botao-voltar:hover {
+      background: #00994d;
+      transform: scale(1.02);
+    }
+
+    .topo h2 {
+      color: #00bf63;
+      font-size: 18px;
+      margin: 0;
+      flex: 1;
+    }
+
+    .conteudo-folhetins {
+      background: white;
+      border-radius: 16px;
+      padding: 20px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+      border: 2px solid #00bf63;
+    }
+
+    .folhetim-card {
+      width: 100%;
+    }
+
+    .cabecalho-folhetim {
+      background: linear-gradient(135deg, #00bf63, #00994d);
+      color: white;
+      padding: 14px;
+      border-radius: 10px;
+      text-align: center;
+      font-weight: bold;
+      font-size: 18px;
+      margin-bottom: 16px;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+    }
+
+    .nome-comunidade {
+      text-align: center;
+      font-size: 24px;
+      font-weight: bold;
+      color: #1a1a1a;
+      margin-bottom: 12px;
+      padding: 8px;
+      background: #f0f9f4;
+      border-radius: 8px;
+      letter-spacing: 2px;
+    }
+
+    .resumo-geral {
+      background: #f0f9f4;
+      padding: 12px;
+      border-radius: 10px;
+      margin-bottom: 16px;
+      border-left: 4px solid #00bf63;
+    }
+
+    .resumo-geral p {
+      margin: 5px 0;
+      font-size: 14px;
+      color: #333;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .resumo-geral span {
+      font-weight: bold;
+      color: #00bf63;
+      font-size: 16px;
+    }
+
+    hr {
+      border: none;
+      border-top: 2px dashed #e0e0e0;
+      margin: 16px 0;
+    }
+
+    h3 {
+      font-size: 15px;
+      color: #1a1a1a;
+      margin: 16px 0 10px 0;
+      padding-bottom: 6px;
+      border-bottom: 2px solid #00bf63;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .lista-folhetim {
+      list-style: none;
+      padding: 0;
+      margin: 0 0 8px 0;
+    }
+
+    .lista-folhetim li {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 6px 10px;
+      font-size: 14px;
+      border-radius: 6px;
+      transition: background 0.2s ease;
+      margin: 2px 0;
+    }
+
+    .lista-folhetim li:hover {
+      background: #f0f9f4;
+    }
+
+    .lista-folhetim li span {
+      background: #00bf63;
+      color: white;
+      padding: 2px 12px;
+      border-radius: 20px;
+      font-weight: bold;
+      font-size: 14px;
+      min-width: 30px;
+      text-align: center;
+    }
+
+    .destaque-folhetim {
+      background: #fff3cd;
+      padding: 12px 16px;
+      border-radius: 10px;
+      margin: 16px 0;
+      border-left: 4px solid #ffc107;
+      font-size: 14px;
+      color: #856404;
+      line-height: 1.5;
+    }
+
+    .destaque-folhetim strong {
+      display: block;
+    }
+
+    .btn-mapa {
+      width: 100%;
+      padding: 12px;
+      background: #00bf63;
+      color: white;
+      border: none;
+      border-radius: 10px;
+      font-weight: bold;
+      font-size: 16px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      margin-top: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+
+    .btn-mapa:hover {
+      background: #00994d;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(0, 191, 99, 0.3);
+    }
+
+    .btn-mapa:active {
+      transform: translateY(0);
+    }
+
+    /* Responsividade */
+    @media (max-width: 600px) {
+      body {
+        padding: 10px;
+      }
+
+      .topo {
+        flex-wrap: wrap;
+        padding: 10px 12px;
+      }
+
+      .topo h2 {
+        font-size: 16px;
+        width: 100%;
+        text-align: center;
+      }
+
+      .botao-voltar {
+        font-size: 12px;
+        padding: 6px 12px;
+      }
+
+      .conteudo-folhetins {
+        padding: 14px;
+      }
+
+      .cabecalho-folhetim {
+        font-size: 15px;
+        padding: 10px;
+      }
+
+      .nome-comunidade {
+        font-size: 20px;
+      }
+
+      .lista-folhetim li {
+        font-size: 13px;
+        padding: 4px 8px;
+      }
+
+      .resumo-geral p {
+        font-size: 13px;
+      }
+    }
+
+    /* Animação de carregamento */
+    @keyframes pulse {
+      0% { opacity: 1; }
+      50% { opacity: 0.5; }
+      100% { opacity: 1; }
+    }
+
+    .carregando {
+      animation: pulse 1.5s ease-in-out infinite;
+    }
+  </style>
+</head>
+<body>
+
 <div id="folhetins" class="secao">
+  <div class="topo">
+    <button class="botao-voltar" onclick="voltarMenu()">← Voltar</button>
+    <h2>Folhetins das Comunidades</h2>
+  </div>
 
-    <div class="topo">
+  <div class="conteudo-folhetins">
+    <div class="folhetim-card">
+      <div class="cabecalho-folhetim">🌿 FOLHETIM COMUNITÁRIO</div>
+      <div class="nome-comunidade">PA REDONDA</div>
 
-        <button class="botao-voltar"
-                onclick="voltarMenu()">
+      <div class="resumo-geral">
+        <p>📍 Registros cadastrados: <span id="totalRegistros">0</span></p>
+        <p>🌱 Tipos identificados: <span id="totalTipos">0</span></p>
+        <p>🗓️ Atualizado automaticamente</p>
+      </div>
 
-            ← Voltar
+      <hr>
 
-        </button>
+      <h3>🌱 PRODUÇÃO E USO DA TERRA</h3>
+      <ul class="lista-folhetim">
+        <li>Feijão <span id="qtdFeijao">0</span></li>
+        <li>Arroz <span id="qtdArroz">0</span></li>
+        <li>Milho <span id="qtdMilho">0</span></li>
+        <li>Cajueiro <span id="qtdCajueiro">0</span></li>
+        <li>Hortaliça <span id="qtdHortalica">0</span></li>
+      </ul>
 
-        <h2>Folhetins das Comunidades</h2>
+      <h3>💧 RECURSOS HÍDRICOS</h3>
+      <ul class="lista-folhetim">
+        <li>Cisterna <span id="qtdCisterna">0</span></li>
+        <li>Poço <span id="qtdPoco">0</span></li>
+      </ul>
 
+      <h3>🌿 SITUAÇÃO AMBIENTAL</h3>
+      <ul class="lista-folhetim">
+        <li>Em repouso <span id="qtdRepouso">0</span></li>
+        <li>Degradado <span id="qtdDegradado">0</span></li>
+      </ul>
+
+      <div class="destaque-folhetim">
+        <strong id="fraseResumo">Carregando informações da comunidade...</strong>
+      </div>
+
+      <button class="btn-mapa" onclick="mostrarSecao('dados')">
+        🗺️ Ver no mapa
+      </button>
     </div>
-
-    <div class="conteudo-folhetins">
-
-        <div class="folhetim-card">
-
-            <div class="cabecalho-folhetim">
-                🌿 FOLHETIM COMUNITÁRIO
-            </div>
-
-            <div class="nome-comunidade">
-                PA REDONDA
-            </div>
-
-            <div class="resumo-geral">
-
-                <p>📍 Registros cadastrados: <span id="totalRegistros">0</span></p>
-
-                <p>🌱 Tipos identificados: <span id="totalTipos">0</span></p>
-
-                <p>🗓️ Atualizado automaticamente</p>
-
-            </div>
-
-            <hr>
-
-            <h3>PRODUÇÃO E USO DA TERRA</h3>
-
-            <ul class="lista-folhetim">
-
-                <li>🌱 Feijão <span id="qtdFeijao">0</span></li>
-
-                <li>🌾 Arroz <span id="qtdArroz">0</span></li>
-
-                <li>🌽 Milho <span id="qtdMilho">0</span></li>
-
-                <li>🌳 Cajueiro <span id="qtdCajueiro">0</span></li>
-
-                <li>🥬 Hortaliça <span id="qtdHortalica">0</span></li>
-
-            </ul>
-
-            <h3>RECURSOS HÍDRICOS</h3>
-
-            <ul class="lista-folhetim">
-
-                <li>💧 Cisterna <span id="qtdCisterna">0</span></li>
-
-                <li>🕳️ Poço <span id="qtdPoco">0</span></li>
-
-            </ul>
-
-            <h3>SITUAÇÃO AMBIENTAL</h3>
-
-            <ul class="lista-folhetim">
-
-                <li>🌿 Em repouso <span id="qtdRepouso">0</span></li>
-
-                <li>⚠️ Degradado <span id="qtdDegradado">0</span></li>
-
-            </ul>
-
-            <div class="destaque-folhetim">
-
-                <strong id="fraseResumo">
-                    Carregando informações da comunidade...
-                </strong>
-
-            </div>
-
-            <button class="btn-mapa"
-                    onclick="mostrarSecao('dados')">
-
-                🗺️ Ver no mapa
-
-            </button>
-
-        </div>
-
-    </div>
-
+  </div>
 </div>
+
+<script src="https://unpkg.com/papaparse@5.4.1/papaparse.min.js"></script>
+
+<script>
+const SHEET_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vS0QkPHFozeRjH9QtQh_OY-s-U5xGoqNcpCavJvUY9VHRIn02MUCAqw9GnVfddTn7Vt0Xs1yaqSbf1d/pub?output=csv";
+
+// Funções placeholder para integração com o menu
+function voltarMenu() {
+  alert('Voltando ao menu principal...');
+  // Aqui você pode implementar a navegação
+}
+
+function mostrarSecao(secao) {
+  alert('Abrindo mapa...');
+  // Aqui você pode implementar a navegação para o mapa
+}
+
+// Carregar dados
+function carregarFolhetim() {
+  // Adicionar classe de carregamento
+  document.getElementById('fraseResumo').textContent = '🔄 Carregando dados...';
+  document.getElementById('fraseResumo').className = 'carregando';
+
+  Papa.parse(SHEET_URL, {
+    download: true,
+    header: true,
+    skipEmptyLines: true,
+
+    complete: function(results) {
+      const contagem = {
+        1: 0, // Feijão
+        2: 0, // Arroz
+        3: 0, // Cajueiro
+        4: 0, // Cisterna
+        5: 0, // Milho
+        6: 0, // Poço
+        7: 0, // Hortaliça
+        8: 0, // Em repouso
+        9: 0  // Degradado
+      };
+
+      results.data.forEach(linha => {
+        const tipo = Number(String(linha.tipo || "").trim());
+        if (contagem[tipo] !== undefined) {
+          contagem[tipo]++;
+        }
+      });
+
+      // Preencher folhetim
+      document.getElementById("qtdFeijao").textContent = contagem[1];
+      document.getElementById("qtdArroz").textContent = contagem[2];
+      document.getElementById("qtdCajueiro").textContent = contagem[3];
+      document.getElementById("qtdCisterna").textContent = contagem[4];
+      document.getElementById("qtdMilho").textContent = contagem[5];
+      document.getElementById("qtdPoco").textContent = contagem[6];
+      document.getElementById("qtdHortalica").textContent = contagem[7];
+      document.getElementById("qtdRepouso").textContent = contagem[8];
+      document.getElementById("qtdDegradado").textContent = contagem[9];
+
+      const totalRegistros = Object.values(contagem).reduce((a, b) => a + b, 0);
+      document.getElementById("totalRegistros").textContent = totalRegistros;
+
+      const totalTipos = Object.values(contagem).filter(v => v > 0).length;
+      document.getElementById("totalTipos").textContent = totalTipos;
+
+      const nomes = {
+        1: "Feijão",
+        2: "Arroz",
+        3: "Cajueiro",
+        4: "Cisterna",
+        5: "Milho",
+        6: "Poço",
+        7: "Hortaliça",
+        8: "Em repouso",
+        9: "Degradado"
+      };
+
+      const principal = Object.entries(contagem).sort((a, b) => b[1] - a[1])[0];
+      
+      if (principal && principal[1] > 0) {
+        document.getElementById("fraseResumo").textContent = 
+          `O uso predominante identificado na comunidade é ${nomes[principal[0]]}, com ${principal[1]} registros cadastrados.`;
+      } else {
+        document.getElementById("fraseResumo").textContent = 
+          'Nenhum registro encontrado na comunidade.';
+      }
+      
+      document.getElementById("fraseResumo").className = '';
+    },
+
+    error: function(error) {
+      console.error('Erro ao carregar dados:', error);
+      document.getElementById("fraseResumo").textContent = 
+        '❌ Erro ao carregar dados. Tente novamente mais tarde.';
+      document.getElementById("fraseResumo").className = '';
+    }
+  });
+}
+
+// Inicializar
+carregarFolhetim();
+
+// Atualizar a cada 5 minutos
+setInterval(carregarFolhetim, 300000);
+
+// Recarregar quando a página ficar visível novamente
+document.addEventListener('visibilitychange', function() {
+  if (!document.hidden) {
+    carregarFolhetim();
+  }
+});
+</script>
+
+</body>
+</html>
