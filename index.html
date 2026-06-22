@@ -17,80 +17,97 @@
     margin:0;
     padding:0;
     box-sizing:border-box;
+    font-family:Arial,sans-serif;
 }
 
 body{
+    overflow:hidden;
+}
 
+#menuPrincipal{
     width:100%;
     height:100vh;
 
     background:url("assets/fundo.jpg") center center/cover no-repeat;
 
     display:flex;
+    flex-direction:column;
     justify-content:center;
     align-items:center;
 
-    font-family:Arial,sans-serif;
+    gap:30px;
 }
 
-.container{
-
-    text-align:center;
-}
-
-h1{
-
+#menuPrincipal h1{
     color:#00bf63;
-
+    font-size:3.5rem;
     font-family:'DM Serif Display', serif;
-
-    font-size:4rem;
-
-    margin-bottom:40px;
-
-    text-shadow:2px 2px 10px rgba(255,255,255,.8);
+    font-weight:normal;
 }
 
 .menu-opcoes{
-
     display:flex;
-
     gap:25px;
-
-    justify-content:center;
-
     flex-wrap:wrap;
+    justify-content:center;
 }
 
 .card-menu{
-
     width:280px;
     height:180px;
 
-    border:none;
-
+    border:3px solid #00bf63;
     border-radius:20px;
 
     background:#00bf63;
 
     color:white;
 
+    font-size:1.3rem;
     font-family:'DM Serif Display', serif;
-
-    font-size:1.4rem;
 
     cursor:pointer;
 
-    transition:.3s;
-
-    box-shadow:0 6px 15px rgba(0,0,0,.25);
+    transition:all .3s ease;
 }
 
 .card-menu:hover{
-
     transform:translateY(-8px);
+}
 
-    box-shadow:0 12px 25px rgba(0,0,0,.35);
+.secao{
+    display:none;
+    width:100%;
+    height:100vh;
+}
+
+.topo{
+    height:60px;
+    background:#2c3e50;
+    color:white;
+
+    display:flex;
+    align-items:center;
+    gap:15px;
+
+    padding:0 15px;
+}
+
+.botao-voltar{
+    padding:8px 15px;
+    border:none;
+    border-radius:6px;
+    cursor:pointer;
+}
+
+.conteudo{
+    height:calc(100vh - 60px);
+}
+
+iframe{
+    width:100%;
+    height:100%;
+    border:none;
 }
 
 </style>
@@ -99,7 +116,7 @@ h1{
 
 <body>
 
-<div class="container">
+<div id="menuPrincipal">
 
 ```
 <h1>Menu Principal</h1>
@@ -107,7 +124,7 @@ h1{
 <div class="menu-opcoes">
 
     <button class="card-menu"
-            onclick="window.location.href='folhetim.html'">
+            onclick="mostrarSecao('folhetins')">
 
         📖<br><br>
         Folhetins das Comunidades
@@ -115,7 +132,7 @@ h1{
     </button>
 
     <button class="card-menu"
-            onclick="window.location.href='mapa.html'">
+            onclick="mostrarSecao('dados')">
 
         🗺️<br><br>
         Adicione Dados
@@ -126,6 +143,81 @@ h1{
 ```
 
 </div>
+
+<div id="folhetins" class="secao">
+
+```
+<div class="topo">
+
+    <button class="botao-voltar"
+            onclick="voltarMenu()">
+
+        ← Voltar
+
+    </button>
+
+    <h2>Folhetins das Comunidades</h2>
+
+</div>
+
+<div class="conteudo">
+
+    <iframe src="folhetim.html"></iframe>
+
+</div>
+```
+
+</div>
+
+<div id="dados" class="secao">
+
+```
+<div class="topo">
+
+    <button class="botao-voltar"
+            onclick="voltarMenu()">
+
+        ← Voltar
+
+    </button>
+
+    <h2>Adicione Dados</h2>
+
+</div>
+
+<div class="conteudo">
+
+    <iframe src="mapa.html"></iframe>
+
+</div>
+```
+
+</div>
+
+<script>
+
+function mostrarSecao(secao){
+
+    document.getElementById("menuPrincipal")
+            .style.display = "none";
+
+    document.querySelectorAll(".secao")
+            .forEach(s => s.style.display = "none");
+
+    document.getElementById(secao)
+            .style.display = "block";
+}
+
+function voltarMenu(){
+
+    document.querySelectorAll(".secao")
+            .forEach(s => s.style.display = "none");
+
+    document.getElementById("menuPrincipal")
+            .style.display = "flex";
+}
+
+</script>
 
 </body>
 
